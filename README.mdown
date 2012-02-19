@@ -1,0 +1,30 @@
+# Tweddit
+
+A [Hacker School](http://www.hackerschool.com/) project
+
+## It’s like the front page of some news aggregation website but everyone’s already voting
+
+Tweddit listens to a real-time stream of posts from Twitter ([about 1% of all publicly-posted tweets, according to the API documentation](https://dev.twitter.com/docs/streaming-api/methods#statuses-sample)), and keeps track of the links that are being passed around most right now.
+
+## How to make it work
+
+Create a file called `secrets.py` in the project directory:
+
+    username = 'twitter_username'
+    password = 'twitter_password'
+
+## Lambdas!?
+
+All right, you caught me. The real purpose of this project is to start teaching myself Python.
+
+## Are you guys hiring?
+
+What? Tweddit is just a little Python script. Don’t get your hopes up.
+
+## What’s next
+
+- Fix pruning (it crashes right now)
+- More pythonic/cleaner code
+- Output top links on a time basis (concurrency!)
+- Web interface (maybe)
+- Keep state to a file so it isn’t lost when the script needs to be restarted
