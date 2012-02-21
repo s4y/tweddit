@@ -5,7 +5,7 @@ STREAM_URL = "https://stream.twitter.com/1/statuses/sample.json"
 
 
 
-class TwitterClient(threading.Thread):
+class TweetStream(threading.Thread):
 	def __init__(self, handler):
 		import pycurl
 		self.buffer = ""
@@ -30,7 +30,7 @@ class TwitterClient(threading.Thread):
 class Tweddit():
 	def __init__(self):
 		self.urls = {}
-		self.client = TwitterClient(self.handle_tweet)
+		self.client = TweetStream(self.handle_tweet)
 	def start(self):
 		self.client.start();
 	def handle_tweet(self, tweet):
