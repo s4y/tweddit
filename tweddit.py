@@ -28,9 +28,11 @@ class TweetStream(threading.Thread):
 			self.buffer = ""
 
 class Tweddit():
-	def __init__(self):
+	def __init__(self, max=15, pruneTo=10):
 		self.urls = {}
 		self.client = TweetStream(self.handle_tweet)
+		self.max = max
+		self.pruneTo = pruneTo
 	def start(self):
 		self.client.start();
 	def handle_tweet(self, tweet):
@@ -40,13 +42,13 @@ class Tweddit():
 			for url in tweet_urls:
 				self.urls[url] = ((self.urls[url][0] + 1 if (url in self.urls) else 1), datetime.now())
 				print '%d: %s (total: %d)' % (self.urls[url][0], url, len(self.urls))
-			if len(self.urls) > 15000:
+			if len(self.urls) > self.max:
 				self.prune()
 	def prune(self):
 		urls_sorted = self.urls.items()
 		urls_sorted.sort(key=itemgetter(1), reverse=True)
 		urls_sorted.sort(reverse=True)
-		for url_to_delete in urls_sorted[10000:]:
+		for url_to_delete in urls_sorted[self.pruneTo:]:
 			del self.urls[str(url_to_delete[0])]
 
 if __name__ == '__main__':
