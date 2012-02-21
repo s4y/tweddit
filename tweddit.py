@@ -30,11 +30,8 @@ class TweetStream(threading.Thread):
 class Tweddit():
 	def __init__(self, max=15, pruneTo=10):
 		self.urls = {}
-		self.client = TweetStream(self.handle_tweet)
 		self.max = max
 		self.pruneTo = pruneTo
-	def start(self):
-		self.client.start();
 	def handle_tweet(self, tweet):
 		from datetime import datetime
 		if 'entities' in tweet:
@@ -52,7 +49,8 @@ class Tweddit():
 
 if __name__ == '__main__':
 	tweddit = Tweddit()
-	tweddit.start()
+	stream = TweetStream(tweddit.handle_tweet)
+	stream.start()
 	e = threading.Event()
 	while True:
 		e.wait(10)
