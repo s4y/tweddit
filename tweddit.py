@@ -38,8 +38,7 @@ class Tweddit():
 	def handle_tweet(self, tweet):
 		from datetime import datetime
 		if 'entities' in tweet:
-			tweet_urls = [url['expanded_url'] or url['url'] for url in tweet['entities']['urls']]
-			for url in tweet_urls:
+			for url in [url['expanded_url'] or url['url'] for url in tweet['entities']['urls']]:
 				self.urls[url] = ((self.urls[url][0] + 1 if (url in self.urls) else 1), datetime.now())
 				print '%d: %s (total: %d)' % (self.urls[url][0], url, len(self.urls))
 			if len(self.urls) > self.max:
