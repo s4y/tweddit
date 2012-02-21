@@ -23,8 +23,6 @@ What? Tweddit is just a little Python script. Don’t get your hopes up.
 
 ## What’s next
 
-- Fix pruning (it crashes right now)
-- More pythonic/cleaner code
-- Output top links on a time basis (concurrency!)
+- Look over pruning (I've seen it crash, but not recently)
 - Web interface (maybe)
 - Keep state to a file so it isn’t lost when the script needs to be restarted
