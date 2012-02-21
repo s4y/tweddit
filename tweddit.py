@@ -28,35 +28,39 @@ class TweetStream(threading.Thread):
 			self.buffer = ""
 
 class Tweddit():
-	def __init__(self, max=15, pruneTo=10):
-		self.urls = {}
-		self.max = max
-		self.pruneTo = pruneTo
+	def __init__(self):
+		from Queue import Queue
+		self.queue = Queue()
 	def handle_tweet(self, tweet):
+		if not hasattr(self, 'conn'):
+			from sqlite3 import connect
+			self.conn = connect('tweddit')
+			self.cursor = self.conn.cursor()
+			self.cursor.execute('CREATE TABLE IF NOT EXISTS tweet_urls(url TEXT, timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP)')
 		from datetime import datetime
 		if 'entities' in tweet:
 			for url in [url['expanded_url'] or url['url'] for url in tweet['entities']['urls']]:
-				self.urls[url] = ((self.urls[url][0] + 1 if (url in self.urls) else 1), datetime.now())
-				print '%d: %s (total: %d)' % (self.urls[url][0], url, len(self.urls))
-			if len(self.urls) > self.max:
-				self.prune()
-	def prune(self):
-		urls_sorted = self.urls.items()
-		urls_sorted.sort(key=itemgetter(1), reverse=True)
-		urls_sorted.sort(reverse=True)
-		for url_to_delete in urls_sorted[self.pruneTo:]:
-			del self.urls[str(url_to_delete[0])]
+				self.cursor.execute('INSERT INTO tweet_urls ("url") VALUES(?)', (url,))
+				self.conn.commit()
+				print url
 
 if __name__ == '__main__':
+	import sqlite3
+	conn = sqlite3.connect('tweddit')
+	conn.row_factory = sqlite3.Row
 	tweddit = Tweddit()
 	stream = TweetStream(tweddit.handle_tweet)
 	stream.start()
 	e = threading.Event()
 	while True:
 		e.wait(10)
-		urls_sorted = tweddit.urls.items()
-		urls_sorted.sort(key=itemgetter(1), reverse=True)
-		print '\n-------------\n\n\n'
-		for url in urls_sorted[:10]:
-			print '%d: %s' % (url[1][0], url[0])
-		print '\n\n'
+		cursor = conn.cursor()
+		cursor.execute('SELECT COUNT(*) AS count FROM tweet_urls')
+		print '\n-------------'
+		print 'Total tweeted URLS: %d' % cursor.fetchone()['count']
+		print ''
+		cursor.execute('SELECT url, COUNT(*) AS COUNT FROM tweet_urls GROUP BY url ORDER BY count DESC LIMIT 0, 10')
+		for url in cursor:
+			print '%d: %s' % (url['count'], url['url'])
+		print ''
+		cursor.close()

@@ -23,6 +23,6 @@ What? Tweddit is just a little Python script. Don’t get your hopes up.
 
 ## What’s next
 
-- Look over pruning (I've seen it crash, but not recently)
+- Prune or ignore URLs older than x
 - Web interface (maybe)
-- Keep state to a file so it isn’t lost when the script needs to be restarted
+- Cleanup - I don’t like how threading/connections work right now
