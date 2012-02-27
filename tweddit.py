@@ -51,11 +51,11 @@ if __name__ == '__main__':
 	stream = TweetStream(run_loop.onLoop(tweddit.handle_tweet))
 	def status():
 		cursor = conn.cursor()
-		cursor.execute('SELECT COUNT(*) AS count FROM tweet_urls')
+		cursor.execute('SELECT COUNT(*) AS count FROM tweet_urls WHERE timestamp >= datetime("now", "-1 day")')
 		print '\n-------------'
 		print 'Total tweeted URLS: %d' % cursor.fetchone()['count']
 		print ''
-		cursor.execute('SELECT url, COUNT(*) AS COUNT FROM tweet_urls GROUP BY url ORDER BY count DESC LIMIT 0, 10')
+		cursor.execute('SELECT url, COUNT(*) AS COUNT FROM tweet_urls WHERE timestamp >= datetime("now", "-1 day" ) GROUP BY url ORDER BY count DESC LIMIT 0, 10')
 		for url in cursor:
 			print '%d: %s' % (url['count'], url['url'])
 		print ''
