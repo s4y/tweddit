@@ -1,9 +1,8 @@
 import secrets, threading
+from runloop import RunLoop
 from operator import itemgetter
 
 STREAM_URL = "https://stream.twitter.com/1/statuses/sample.json"
-
-
 
 class TweetStream(threading.Thread):
 	def __init__(self, handler):
@@ -29,14 +28,11 @@ class TweetStream(threading.Thread):
 
 class Tweddit():
 	def __init__(self):
-		from Queue import Queue
-		self.queue = Queue()
+		from sqlite3 import connect
+		self.conn = connect('tweddit')
+		self.cursor = self.conn.cursor()
+		self.cursor.execute('CREATE TABLE IF NOT EXISTS tweet_urls(url TEXT, timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP)')
 	def handle_tweet(self, tweet):
-		if not hasattr(self, 'conn'):
-			from sqlite3 import connect
-			self.conn = connect('tweddit')
-			self.cursor = self.conn.cursor()
-			self.cursor.execute('CREATE TABLE IF NOT EXISTS tweet_urls(url TEXT, timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP)')
 		from datetime import datetime
 		if 'entities' in tweet:
 			for url in [url['expanded_url'] or url['url'] for url in tweet['entities']['urls']]:
@@ -48,12 +44,10 @@ if __name__ == '__main__':
 	import sqlite3
 	conn = sqlite3.connect('tweddit')
 	conn.row_factory = sqlite3.Row
+	run_loop = RunLoop()
 	tweddit = Tweddit()
-	stream = TweetStream(tweddit.handle_tweet)
-	stream.start()
-	e = threading.Event()
-	while True:
-		e.wait(10)
+	stream = TweetStream(run_loop.onLoop(tweddit.handle_tweet))
+	def status():
 		cursor = conn.cursor()
 		cursor.execute('SELECT COUNT(*) AS count FROM tweet_urls')
 		print '\n-------------'
@@ -64,3 +58,6 @@ if __name__ == '__main__':
 			print '%d: %s' % (url['count'], url['url'])
 		print ''
 		cursor.close()
+	run_loop.every(status, 5)
+	stream.start()
+	run_loop.run()
