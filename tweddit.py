@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import secrets, threading
 from runloop import RunLoop
 from operator import itemgetter
